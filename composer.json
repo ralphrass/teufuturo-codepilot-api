@@ -1,0 +1,7 @@
+{
+    "name": "horthidro/api",
+    "description": "API da Horthidro",
+    "require": {
+        "phpmailer/phpmailer": "^6.1"
+    }
+}
