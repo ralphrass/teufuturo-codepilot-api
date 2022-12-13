@@ -58,16 +58,44 @@ class SendCode {
         // return RestReturn::post($values);
 
         // 2. Analisar o código do usuário, qual comando mais se repete?
-        $array = explode(" ", $user_code);
-        $array = array_count_values($array);
-        arsort($array);
+        $code_words = str_word_count($user_code, 1);
+        $code_words_count = array_count_values($code_words);
+        arsort($code_words_count);
 
         // 3. Buscar a lista de conteúdos de acordo com o código do usuário.
+        $word_filter = implode(",", array_keys($code_words_count));
+
+        $query = '
+            SELECT id, keyword, topic, link 
+            FROM content 
+            ORDER BY topic ';
+        $result = Database::select($query, [
+            //'words' => $word_filter
+        ]);
 
         // 4. Retornar a lista de conteúdos.
+        $data = [];
+        $selected_content = [];
+        foreach ($result['data'] as $conteudo) {
+
+            //if (strcasecmp($conteudo['keyword']))
+            if (stripos($word_filter, $conteudo['keyword']) !== false){
+
+                if (!in_array($conteudo['topic'], $selected_content)){
+
+                    array_push($selected_content, $conteudo['topic']);
+
+                    array_push($data, [
+                        'id' => $conteudo['id'],
+                        'topic' => $conteudo['topic'],
+                        'link' => $conteudo['link']
+                    ]);
+                }
+            }
+        }
 
         // return RestReturn::post($result['newId']);
-        return RestReturn::post($array);
+        return RestReturn::post(null, $data);
     }
 
     /**
